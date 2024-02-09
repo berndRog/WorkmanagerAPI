@@ -18,19 +18,6 @@ public class Seed {
    public Person Person9{ get; set; }
    public Person Person10{ get; set; }
    
-   public Address Address01{ get; set; }
-   public Address Address02{ get; set; }
-   public Address Address03{ get; set; }
-   public Address Address04{ get; set; }
-   public Address Address05{ get; set; }
-   public Address Address06{ get; set; }
-   public Address Address10{ get; set; }
-   public Address Address11{ get; set; }
-   public Address Address12{ get; set; }
-   public Address Address13{ get; set; }
-   public Address Address14{ get; set; }
-   public Address Address15{ get; set; }
-      
    public Workorder Workorder01{ get; set; }
    public Workorder Workorder02{ get; set; }
    public Workorder Workorder03{ get; set; }
@@ -121,101 +108,7 @@ public class Seed {
          Phone = "05826 0123 4567"
       };
       #endregion
-
-      #region Addresses
-      Address01 = new(){
-         Id = new Guid("01000000-0000-0000-0000-000000000000"),
-         Street = "Hambrokerstr.",
-         Number = "23",
-         ZipCode = "29525",
-         City = "Uelzen",
-      };
-
-      Address02 = new(){
-         Id = new Guid("02000000-0000-0000-0000-000000000000"),
-         Street = "St-Viti-Str.",
-         Number = "7",
-         ZipCode = "29525",
-         City = "Uelzen",
-      };
       
-      Address03 = new(){
-         Id = new Guid("03000000-0000-0000-0000-000000000000"),
-         Street = "Cellerstr.",
-         Number = "9",
-         ZipCode = "29348",
-         City = "Eschede",
-      };
-      
-      Address04 = new(){
-         Id = new Guid("04000000-0000-0000-0000-000000000000"),
-         Street = "Große Horststr.",
-         Number = "17",
-         ZipCode = "29328",
-         City = "Faßberg",
-      };
-
-      Address05 = new(){
-         Id = new Guid("05000000-0000-0000-0000-000000000000"),
-         Street = "Cellerstr.",
-         Number = "9",
-         ZipCode = "29348",
-         City = "Eschede",
-      };
-      
-      Address06 = new(){
-         Id = new Guid("06000000-0000-0000-0000-000000000000"),
-         Street = "Große Horststr.",
-         Number = "17",
-         ZipCode = "29328",
-         City = "Faßberg",
-      };
-      
-      Address10 = new(){
-         Id = new Guid("10000000-0000-0000-0000-000000000000"),
-         Street = "Bahnhofstr.",
-         Number = "1",
-         ZipCode = "29556",
-         City = "Suderburg",
-     };
-
-      Address11 = new() {
-         Id = new Guid("11000000-0000-0000-0000-000000000000"),
-         Street = "In den Twieten",
-         Number = "1",
-         ZipCode = "29556",
-         City = "Suderburg"
-      };
-      Address12 = new () {
-         Id = new Guid("12000000-0000-0000-0000-000000000000"),
-         Street = "Herbert-Meyer-Str.",
-         Number = "1",
-         ZipCode = "29556",
-         City = "Suderburg"
-      };
-      Address13 = new () {
-         Id = new Guid("13000000-0000-0000-0000-000000000000"),
-         Street = "Am Kindergarten",
-         Number = "1",
-         ZipCode = "29556",
-         City = "Suderburg"
-      };
-      Address14 = new () {
-         Id = new Guid("14000000-0000-0000-0000-000000000000"),
-         Street = "Lerchenweg",
-         Number = "1",
-         ZipCode = "29556",
-         City = "Suderburg"
-      };
-      Address15 = new () {
-         Id = new Guid("15000000-0000-0000-0000-000000000000"),
-         Street = "Spechtstr.",
-         Number = "1",
-         ZipCode = "29556",
-         City = "Suderburg"
-      };
-      #endregion
-
       #region Workorders
       Workorder01 = new(){
          Id = new Guid("01000000-0000-0000-0000-000000000000"),
@@ -307,26 +200,6 @@ public class Seed {
       Workorders = new List<Workorder>{ Workorder01, Workorder02, Workorder03, 
          Workorder04, Workorder05, Workorder06, Workorder07, Workorder08, Workorder09,Workorder10 };
 
-   }
-   
-   public Seed InitPeopleAddresses(){
-      Person1.AddOrUpdateAddress(Address01); 
-      Person2.AddOrUpdateAddress(Address02);
-      Person3.AddOrUpdateAddress(Address03); 
-      Person4.AddOrUpdateAddress(Address04);
-      Person5.AddOrUpdateAddress(Address05);
-      Person6.AddOrUpdateAddress(Address06);
-      return this;
-   }
-
-   public Seed InitWordorderAddresses(){
-      Workorder01.AddOrUpdateAddress(Address10); 
-      Workorder02.AddOrUpdateAddress(Address11);
-      Workorder03.AddOrUpdateAddress(Address12); 
-      Workorder04.AddOrUpdateAddress(Address13);
-      Workorder05.AddOrUpdateAddress(Address14);
-      Workorder06.AddOrUpdateAddress(Address15);
-      return this;
    }
 
    public Seed InitPeopleWithWordorders(){

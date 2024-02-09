@@ -19,13 +19,13 @@ public class Person : ABaseEntity {
    public string? Phone { get; set; } = null;
    public string? ImagePath { get; set; } = null;
    public string? RemoteUriPath { get; set; } = null;
-
+   
+   // Relation Person --> Image [0..*]
+   public Image? Image { get; set; } = null;
+   public Guid? ImageId { get; set; } = null;
+   
    // Relation Person --> Workorder [0..*]
    public ICollection<Workorder> Workorders { get; set; } = new List<Workorder>();
-
-   // Embedded relation Person -> Address[0..1]
-   public Address? Address { get; set; } = null;
-   public Guid? AddressId { get; set; } = null;
    #endregion
 
    #region methods
@@ -36,23 +36,13 @@ public class Person : ABaseEntity {
       Email = source.Email;
       Phone = source.Phone;
       ImagePath = source.ImagePath;
-      Address = source.Address;
-      AddressId = source.AddressId;
+      RemoteUriPath = source.RemoteUriPath;
       return this;
    }
 
    public string AsString() =>
       $"{FirstName} {LastName} {Id.As8()}";
 
-   public void AddOrUpdateAddress(Address address) {
-      Address = address;
-      AddressId = address.Id;
-   }
-   
-   public void RemoveAddress() {
-      Address = null;
-      AddressId = null;
-   }
    
    public void AndOrUpdateWorkorder(Workorder workorder) {
       if (workorder.Person != null)

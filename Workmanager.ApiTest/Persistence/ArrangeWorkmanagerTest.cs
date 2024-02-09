@@ -15,15 +15,8 @@ public class ArrangeWorkmanagerTest(
       dataContext.ClearChangeTracker();
    }
    
-   public async Task Person1joinAddressAsync(Seed seed) {
-      seed.Person1.AddOrUpdateAddress(seed.Address01);
-      peopleRepository.Add(seed.Person1);
-      await dataContext.SaveAllChangesAsync();
-      dataContext.ClearChangeTracker();
-   }
-
-   public async Task Person1joinAddressAndWorkorder1Async(Seed seed){
-      seed.Person1.AddOrUpdateAddress(seed.Address01);
+   
+   public async Task Person1WithWorkorder1Async(Seed seed){
       seed.Person1.AndOrUpdateWorkorder(seed.Workorder01);
       peopleRepository.Add(seed.Person1);
       workordersRepository.Add(seed.Workorder01);
@@ -36,15 +29,9 @@ public class ArrangeWorkmanagerTest(
       dataContext.ClearChangeTracker();
    }
 
-   public async Task PeopleWithAdressesAsync(Seed seed) {
-      seed.InitPeopleAddresses();
-      peopleRepository.AddRange(seed.People);
-      await dataContext.SaveAllChangesAsync();
-      dataContext.ClearChangeTracker();
-   }
 
-   public async Task PeopleWithAdressesAndWorkordersAsync(Seed seed) {
-      seed.InitPeopleAddresses().InitWordorderAddresses().InitPeopleWithWordorders();
+   public async Task PeopleWithWorkordersAsync(Seed seed) {
+      seed.InitPeopleWithWordorders();
       peopleRepository.AddRange(seed.People);
       await dataContext.SaveAllChangesAsync();
       dataContext.ClearChangeTracker();

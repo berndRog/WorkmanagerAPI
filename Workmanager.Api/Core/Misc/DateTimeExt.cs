@@ -3,11 +3,16 @@
 namespace Workmanager.Api.Core.Misc;
 
 
+
+
+
 // https://stackoverflow.com/questions/246498/creating-a-datetime-in-a-specific-time-zone-in-c-sharp/246529#246529
 // https://codeblog.jonskeet.uk/2019/03/27/storing-utc-is-not-a-silver-bullet/
 
-public static class DateTimeExt {
 
+
+public static class DateTimeExt {
+   
    private static TimeZoneInfo _timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Europe/Berlin");
    private static TimeZoneInfo _localTimeZone = TimeZoneInfo.Local;
    private static TimeZoneInfo _utcTimeZone = TimeZoneInfo.Utc;
@@ -15,8 +20,7 @@ public static class DateTimeExt {
    static TimeSpan _offset  = _timeZoneInfo.GetUtcOffset(DateTime.Now);
    
    private static string _iso8601Format = "yyyy-MM-dd\\THH:mm:ss"; //ISO-8601 used by Javascript (ALWAYS UTC)
-
-
+   
    public static DateTime AdjustMillis(this DateTime dateTime) =>
       new DateTime(dateTime.Year, dateTime.Month, dateTime.Day,
          dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
@@ -31,6 +35,23 @@ public static class DateTimeExt {
          : DateTime.SpecifyKind(dateTime, DateTimeKind.Local);
    }
    
+   public static DateTime FromEpochInMillis(long epoch) {
+      return DateTimeOffset.FromUnixTimeSeconds(epoch).UtcDateTime;
+   }
+
+   public static long ToEpochInMillis(DateTime dateTime) {
+      if (dateTime.Kind == DateTimeKind.Unspecified) {
+         throw new Exception("Cannot convert DateTimeKind.Unspecified to epoch");
+      }
+      else if (dateTime.Kind == DateTimeKind.Local) {
+         dateTime = dateTime.ToUniversalTime();
+      }
+      else if (dateTime.Kind == DateTimeKind.Utc) {
+         // nothing to do 
+      }  
+      return new DateTimeOffset(dateTime).ToUnixTimeMilliseconds();
+   }
+
    /// <summary>
    /// Convert ISO8610 Stirng in UTC DateTime
    /// </summary>
@@ -40,7 +61,7 @@ public static class DateTimeExt {
    public static DateTime FromIso8601String(
       string stringIso
    ) {
-
+      
       if (stringIso.Length < 20)
          throw new ArgumentException("Invalid length $stringIso");
       else if (stringIso.Length > 28) {

@@ -14,7 +14,6 @@ public class AppDbContext: DbContext  {
    
    public DbSet<Person> People => Set<Person>();
    public DbSet<Workorder> Workorders => Set<Workorder>();
-   public DbSet<Address> Address => Set<Address>();
    public DbSet<Image> Images { get; set; } = null!;
    #endregion
 
@@ -116,16 +115,6 @@ public class AppDbContext: DbContext  {
          .HasForeignKey  (workorder => workorder.PersonId)
          .HasPrincipalKey(person    => person.Id)       
          .OnDelete(DeleteBehavior.ClientNoAction);
-
-
-      // modelBuilder.Entity<Person>()
-      //    .OwnsOne(p => p.Address)
-      
-      modelBuilder.Entity<Person>()
-         .HasOne(person => person.Address)
-         .WithOne()
-         .IsRequired(false)
-         .OnDelete(DeleteBehavior.Cascade);
    }
    #endregion
 

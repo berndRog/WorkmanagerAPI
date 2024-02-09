@@ -43,7 +43,7 @@ public  class WorkordersRepositoryUt {
    [Fact]
    public async Task SelectAsyncUt() {
       // Arrange
-      await _arrangeTest.PeopleWithAdressesAndWorkordersAsync(_seed);
+      await _arrangeTest.PeopleWithWorkordersAsync(_seed);
       // Act  with tracking
       IEnumerable<Workorder> actual = await _workordersRepository.SelectAsync();   
       _dataContext.LogChangeTracker("SelectAsync()");
@@ -54,7 +54,6 @@ public  class WorkordersRepositoryUt {
          .HaveCount(10).And
          .BeEquivalentTo(_seed.Workorders, options => 
             options.Excluding(w => w.Person)
-                   .Excluding(w => w.Address)
          );   
    }
 

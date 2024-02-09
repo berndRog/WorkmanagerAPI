@@ -52,7 +52,7 @@ public class WorkordersControllerTest {
    [Fact]
    public async Task GetAsyncTest() {
       // Arrange
-      await _arrangeTest.Person1joinAddressAndWorkorder1Async(_seed);
+      await _arrangeTest.Person1WithWorkorder1Async(_seed);
       List<WorkorderDto> expected = _mapper.Map<List<WorkorderDto>>(_seed.Workorders); 
       // Act
       ActionResult<IEnumerable<WorkorderDto>> response = await _workordersController.Get();
@@ -68,7 +68,7 @@ public class WorkordersControllerTest {
    [Fact]
    public async Task GetByIdTest() {
       // Arrange
-      await _arrangeTest.Person1joinAddressAndWorkorder1Async(_seed);
+      await _arrangeTest.Person1WithWorkorder1Async(_seed);
       WorkorderDto workorderDto = _mapper.Map<WorkorderDto>(_seed.Person1); 
       // Act
       ActionResult<WorkorderDto> response = 
@@ -86,7 +86,7 @@ public class WorkordersControllerTest {
    [Fact]
    public async Task PostTest() {
       // Arrange
-      await _arrangeTest.Person1joinAddressAndWorkorder1Async(_seed);
+      await _arrangeTest.Person1WithWorkorder1Async(_seed);
       WorkorderDto workorderDto = _mapper.Map<WorkorderDto>(_seed.Workorder01); 
       // Act
       ActionResult<WorkorderDto> response = await _workordersController.Post(workorderDto);

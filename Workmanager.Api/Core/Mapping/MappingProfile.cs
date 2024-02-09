@@ -11,9 +11,6 @@ namespace Workmanager.Api.Core.Mapping {
 
          CreateMap<ImageDto, Image>()
             .ReverseMap();
-
-         CreateMap<Address, AddressDto>()
-            .ReverseMap();
          
          // Add as many of these lines as you need to map your objects
          CreateMap<Person, PersonDto>();

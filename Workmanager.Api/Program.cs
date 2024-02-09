@@ -11,7 +11,7 @@ public class Programm {
    
    static void Main(string[] args){
 
-      // path for WebApi images
+      // path for WebApi images: ~/WorkmanagerApi/images
       var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
       var wwwroot = Path.Combine(home, "WorkmanagerApi");
       

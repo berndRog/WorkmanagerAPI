@@ -24,9 +24,6 @@ public class Workorder: ABaseEntity {
    // Workorder -> Person [0..1]
    public Person? Person {get; set; } = null;
    public Guid?   PersonId { get; set; } = null;
-   // Workorder -> Address [0..1]  embedded
-   public Address? Address { get; set; } = null;
-   public Guid?    AddressId { get; set; } = null;
    #endregion
 
    #region methods
@@ -42,23 +39,11 @@ public class Workorder: ABaseEntity {
       State = source.State;
       Person = source.Person;
       PersonId = source.PersonId;
-      Address = source.Address;
-      AddressId = source.AddressId;
       return this;
    } 
    
    public string AsString() =>
       $"{Title} {Id.As8()}";
-   
-   public void AddOrUpdateAddress(Address address) {
-      Address = address;
-      AddressId = address.Id;
-   }
-   
-   public void RemoveAddress() {
-      Address = null;
-      AddressId = null;
-   }
    #endregion
 
 }

@@ -22,7 +22,7 @@ public class MappingProfileUt {
    [Fact]
    public void Person2PersonDtoDtoUt() {
       // Arrange
-       _seed.InitPeopleAddresses().InitWordorderAddresses().InitPeopleWithWordorders();
+       _seed.InitPeopleWithWordorders();
       // Act
       PersonDto? actualDto = _mapper.Map<PersonDto>(_seed.Person1);
       // Assert
@@ -40,7 +40,7 @@ public class MappingProfileUt {
    [Fact]
    public void PersonDto2PersonUt() {
       // Arrange
-      _seed.InitPeopleAddresses().InitWordorderAddresses().InitPeopleWithWordorders();
+      _seed.InitPeopleWithWordorders();
       PersonDto? personDto = _mapper.Map<PersonDto>(_seed.Person1);
       // Act
       Person? actual = _mapper.Map<Person>(personDto);

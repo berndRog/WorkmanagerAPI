@@ -15,11 +15,12 @@ public class Image: ABaseEntity {
             _id = value == Guid.Empty ? Guid.NewGuid() : value;
         }
     }
-    public string ContentType { get; set; } = string.Empty;
     public string RemoteUriPath { get; set; } = string.Empty;
+    public string ContentType { get; set; } = string.Empty;
+    public DateTime Updated { get; set; } = DateTime.UtcNow;
     
     // Navigation Property
-    // public Owner  User   { get; set; } = NullOwner.Instance;
+    // public User  User   { get; set; } = NullOwner.Instance;
     public Guid   UserId { get; set; } = Guid.Empty;
     #endregion
 
