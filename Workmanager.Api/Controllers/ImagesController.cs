@@ -1,8 +1,8 @@
 ﻿using System.Net.Mime;
+using System.Web;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
 using Workmanager.Api.Core;
 using Workmanager.Api.Core.DomainModel.Entities;
@@ -19,6 +19,7 @@ public class ImagesController(
    IMapper mapper,
    ILogger<ImagesController> logger
 ) : ControllerBase {
+
    /// <summary>
    /// Get an image by Id. 
    /// </summary>
@@ -30,6 +31,7 @@ public class ImagesController(
    [Produces(MediaTypeNames.Application.Json)]
    [ProducesResponseType(typeof(ImageDto), StatusCodes.Status200OK)]
    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+   [ProducesDefaultResponseType]
    public async Task<ActionResult<ImageDto>> GetById(
       [FromRoute] Guid id
    ) {
@@ -39,6 +41,46 @@ public class ImagesController(
       return Ok(mapper.Map<ImageDto>(image));
    }
 
+   /// <summary>
+   /// Delete an image by Id, and the imageFile
+   /// </summary>
+   /// <param name="id"></param>
+   /// <returns></returns>
+   /// <exception cref="IOException"></exception>
+   [HttpDelete("images/{id:Guid}")]
+   [ProducesResponseType(StatusCodes.Status204NoContent)]
+   [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+   [ProducesResponseType(StatusCodes.Status404NotFound)]
+   [ProducesDefaultResponseType]
+   public async Task<ActionResult> Delete(
+      [FromRoute] Guid id
+   ) {
+      logger.LogDebug("Delete {id}", id);
+      Image? image = await repository.FindByIdAsync(id);
+      if (image == null) return NotFound("Image with given id not found.");
+
+      // if an imageFile exists, delete it 
+      if (image.RemoteUriPath != null) {
+         var path = Path.Combine(webHostingEnvironment.WebRootPath, "images");
+         var fileName = image.RemoteUriPath!.Split('/').Last();
+         var filePath = Path.Combine(path, fileName);
+         try {
+            if (System.IO.File.Exists(filePath))
+               System.IO.File.Delete(filePath);
+            else
+               return NotFound("ImageFile not found on the server");
+         }
+         catch (IOException e) {
+            return BadRequest(e.Message);
+         }
+      }
+      // delete the image from database   
+      repository.Remove(image);
+      await dataContext.SaveAllChangesAsync();
+      
+      return NoContent();
+   }
+
    //
    // I M A G E   F I L E S 
    //
@@ -46,8 +88,13 @@ public class ImagesController(
    /// Get the imageFile by fileName
    /// </summary>
    /// <param name="fileName"></param>
-   /// <returns></returns>
+   /// <returns>IActionResult</returns>
    [HttpGet("imageFiles/{fileName}")]
+   [Produces(MediaTypeNames.Multipart.FormData)]
+   [ProducesResponseType(StatusCodes.Status200OK)]
+   [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+   [ProducesResponseType(StatusCodes.Status404NotFound)]
+   [ProducesDefaultResponseType]
    public async Task<IActionResult> DownloadFile(
       [FromRoute] string fileName
    ) {
@@ -66,7 +113,7 @@ public class ImagesController(
       var filePath = Path.Combine(webHostingEnvironment.WebRootPath, "images", fileName);
       // load the file from local file system
       var (byteArray, contentType, fileDownloadName) =
-         await repository.LoadFile(filePath, image!.ContentType);
+         await repository.LoadImageFile(filePath, image!.ContentType);
 
       // return the imageFile
       return File(byteArray, contentType, fileDownloadName);
@@ -79,8 +126,10 @@ public class ImagesController(
    /// Request to this action will not trigger any model binding or model validation,
    /// because this is a no-argument action
    /// </remarks>
-   /// <returns></returns>
+   /// <returns>ActionResult{ImageDto}</returns>
    [HttpPost("imageFiles")]
+   [Consumes(MediaTypeNames.Multipart.FormData)]
+   [Produces(MediaTypeNames.Application.Json)]
    [ProducesResponseType(StatusCodes.Status201Created)]
    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
    [ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
@@ -109,11 +158,10 @@ public class ImagesController(
       
       // Save the imageFile to the local file system
       var path = Path.Combine(webHostingEnvironment.WebRootPath, "images");
-      var fileName = await repository.StoreFile(path, file.OpenReadStream());
+      var fileName = await repository.StoreImageFile(path, file.OpenReadStream());
       if (fileName == null) return BadRequest("File not saved.");
 
-      // store the uri path and the contentType (Mime) of the imageFile in the image
-      var imageUriPath = $"{request.Scheme}://{request.Host}{request.Path}/{fileName}";
+      var imageUriPath = $"{request.Scheme}://{request.Host}{request.Path}{fileName}";
       Image image = new() {
          RemoteUriPath = imageUriPath,
          ContentType = mimeType!,
@@ -131,9 +179,10 @@ public class ImagesController(
    /// <summary>
    /// Update an existing imageFile
    /// </summary>
-   /// <param name="fileName">Name of the exisiting ImageFile</param>
-   /// <returns>Updated ImageDto</returns>
+   /// <param name="uriPath">Name of the exisiting ImageFile</param>
+   /// <returns>ActionResult{ImageDto}</returns>
    [HttpPut("imageFiles/{fileName}")]
+   [Consumes(MediaTypeNames.Multipart.FormData)]
    [Produces(MediaTypeNames.Application.Json)]
    [ProducesResponseType(StatusCodes.Status201Created)]
    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -167,17 +216,17 @@ public class ImagesController(
       // Don't trust any file name, file extension, and file data from the request unless you trust them completely
       var path = Path.Combine(webHostingEnvironment.WebRootPath, "images");
       // Save the new file
-      var newFileName = await repository.StoreFile(path, file.OpenReadStream());
+      var newFileName = await repository.StoreImageFile(path, file.OpenReadStream());
       if (newFileName == null) return BadRequest("File not saved.");
 
-      // get the complete uri path of the image file
-      var uriPath = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+      // get the complete encoded uri path of the image file
+      var uriPath = $"{request.Scheme}://{request.Host}{request.Path}";
       // Retrieve the existing image from the repository
       var image = await repository.GetImageByUriPathAsync(uriPath);
       if (image == null) return NotFound($"Image not found.");
       // Delete the existin imageFile
       if (fileName == image.RemoteUriPath.Split('/').Last()) {
-         var filePath = Path.Combine(path, fileName);
+         var filePath = Path.Combine(path, uriPath.Split('/').Last());
          try {
             if (System.IO.File.Exists(filePath))
                System.IO.File.Delete(filePath);
@@ -204,7 +253,7 @@ public class ImagesController(
       var uri = new Uri(remoteUriPath, UriKind.Absolute);
       return Created(uri: uri, value: mapper.Map<ImageDto>(image));
    }
-}
+} 
 
 /*
    /// <summary>
@@ -249,7 +298,7 @@ public class ImagesController(
             // Don't trust any file name, file extension, and file data from the request unless you trust them completely
             var path = Path.Combine(webHostingEnvironment.WebRootPath, "images");
             // Save the imageFile to the local file system
-            var fileName = await repository.StoreFile(path, section.Body);
+            var fileName = await repository.StoreImageFile(path, section.Body);
             if (fileName == null) return BadRequest("File not saved.");
 
             // store the uri path and the contentType (Mime) of the imageFile in the image
@@ -292,7 +341,7 @@ public class ImagesController(
       if (!request.HasFormContentType ||
           !MediaTypeHeaderValue.TryParse(request.ContentType, out var mediaTypeHeader) ||
           string.IsNullOrEmpty(mediaTypeHeader.Boundary.Value)) {
-         return new UnsupportedMediaTypeResult();
+        return new UnsupportedMediaTypeResult();
       }
       // Get boundary from content-type header
       var boundary = HeaderUtilities.RemoveQuotes(mediaTypeHeader.Boundary.Value).Value;
@@ -308,7 +357,7 @@ public class ImagesController(
              !string.IsNullOrEmpty(contentDisposition.FileName.Value)) {
             // Don't trust any file name, file extension, and file data from the request unless you trust them completely
             var path = Path.Combine(webHostingEnvironment.WebRootPath, "images");
-            var fileName = await repository.StoreFile(path, section.Body);
+            var fileName = await repository.StoreImageFile(path, section.Body);
             if (fileName == null) return BadRequest("File not saved.");
             // The first image is saved only
             var uriPath = $"{Request.Path}/{fileName}";

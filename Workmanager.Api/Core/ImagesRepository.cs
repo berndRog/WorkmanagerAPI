@@ -6,8 +6,8 @@ public interface ImagesRepository: IGenericRepository<Image> {
     Task<Image?> GetImageAsync(Guid id);
     Task<Image?> GetImageByUriPathAsync(string uriPath);
     
-    Task<(byte[], string, string)> LoadFile(string filePath, string contentType);
-    Task<string?> StoreFile(string path, Stream stream);
+    Task<(byte[], string, string)> LoadImageFile(string filePath, string contentType);
+    Task<string?> StoreImageFile(string path, Stream stream);
 
 
 }

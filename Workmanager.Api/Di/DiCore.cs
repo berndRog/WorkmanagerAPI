@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Workmanager.Api.Core.DomainModel.Entities;
 using Workmanager.Api.Core.Mapping;
+using Workmanager.Api.Core.Misc;
 namespace Workmanager.Api.Di; 
 public static class DiCore {
    public static IServiceCollection AddCore(
@@ -15,7 +16,7 @@ public static class DiCore {
       var mapperConfig = new MapperConfiguration(mc => {
          mc.AddProfile(new MappingProfile());
       });
-      
+
       return services;
    }
 }
